@@ -9,19 +9,19 @@ format compact
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Modelo entre uc y la medida de v (m/s):
 s=tf('s');
-Km=0.049;
-Tm= 0.046;
+Km=0.077871;
+Tm= 0.067567;
 Tf=0.2;
 P = Km/(Tm*s+1)/(Tf*s+1);
 Pd = -P;
 
 % Planta con retardo
-ts=5e-3; %segundos
-retardo = 10*ts;    % muestras
-Pam = P*exp(-retardo*s);
+ts=5e-3; %segundos -> 5ms, 40ms y 100ms
+% retardo = 10*ts;    % muestras
+Pam = P*exp(-ts*s);
 
 % Margen de fase
-Fm=65;
+Fm=60;
 
 %% Control P
 % Pulsacion de cruce control P
