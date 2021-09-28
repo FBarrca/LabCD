@@ -20,6 +20,7 @@ ts=5e-3; %segundos -> 5ms, 40ms y 100ms
 % retardo = 10*ts;    % muestras
 Pam = P*exp(-ts*s);
 
+Pam=P;
 % Margen de fase
 Fm=60;
 
