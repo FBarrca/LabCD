@@ -9,20 +9,24 @@ z = tf('z',ts);
 %planta y retardo
 Km=7.7278e-2;
 Tm=6.7051e-2;
+Roz=7.0803e-1;
 Tf=0.2;
 P = Km/(Tm*s+1)/(Tf*s+1);
 delay = exp(-ts*s/2);
 Pm = P*delay;
 Pd = c2d(P,ts);
 
+% inicializamos demas variables necesarias.
 Fm = 60;
 fpi = -10;
 f=0.1;
 b=1;
+Fa = tf(1,1);
 
+% calculo de la w de corte
 wo_p = fsolve(@(wo) -180+Fm-180/pi*angle(freqresp(Pm,wo)),1);
 wo_pid = 1.4*wo_p;
-
+% adelantos y retrasos de fase
 fic = -180+Fm-angle(freqresp(Pm,wo_pid))*(180/pi);
 fpd=fic-fpi;
 
@@ -54,8 +58,21 @@ N=(1/(mu*f))-1;
 % control y funcion en paralelo
 C_pid=K*(1+1/(Ti*s)+(Td*s)/(1+Td*s/N));
 Cr_pid=K*(b+1/(Ti*s)+(Td*s)/(1+Td*s/N));
+C = C_pid;
 
+% discretizacion del control:
+% reglad derivada en el retraso: 1/s = ts/(1-z^-1)
+% regla trapezoidal : 1/s = ts*(1+z^-1)/2/(1-z^-1)
 sa = (z-1)/(z*Ts);
 Cd_pid = K*(1+1/(Ti*sa)+(Td*sa)/(1+Td*sa/N));
+Crd_pid = K*(b+1/(Ti*sa)+(Td*sa)/(1+Td*sa/N));
 
-Crd_pid = Cd_pid;
+
+% inizalizaciones para que cargue en nuestro simulink:
+Cr = Cr_pid;
+C = C_pid;
+Cd = Cd_pid;
+Crd = Crd_pid;
+% para usar modelo analogico modificado ret=1
+% para usar modelo analogico puro ret = 0
+ret = 0;
