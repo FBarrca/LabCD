@@ -7,13 +7,13 @@ clear
 ret = 0;
 % declaramos variable de LaPlace y variable z
 s = tf('s');
-ts = 0.005;
+ts = 0.5;
 Ts = ts;
 z = tf('z',ts);
 
 % establecemos valores de la planta y retardo
-Km=0.077871;
-Tm= 0.067567;
+Km=8.2897e-02;
+Tm= 6.0718e-02;
 Tf=0.2;
 P = Km/(Tm*s+1)/(Tf*s+1);
 
@@ -42,20 +42,12 @@ Crd = Cd;
 % G = Pm*K;
 
 %% CONTROL pid
-
-<<<<<<< Updated upstream
-wo_pid = 1.7*wo_p;
-Fpi=-10;
-f=0.1;
-b=1;
-=======
+% 
 wo_pid = 1.4*wo_p;
 Fpi=-10;
 f=0.1;
 I=-1/(wo_pid*tand(Fpi));
-
-
->>>>>>> Stashed changes
+b=1;
 
 
 Fic = -180+Fm-angle(freqresp(Pm,wo_pid))*(180/pi);
@@ -79,27 +71,15 @@ Td=((1/mu)-f)*D;
 Ti=mu*I;
 N=(1/(mu*f))-1;
 
-<<<<<<< Updated upstream
 C_pid=K*(1+1/(Ti*s)+(Td*s)/(1+Td*s/N));
 Cr_pid=K*(b+1/(Ti*s)+(Td*s)/(1+Td*s/N));
-=======
-b=1;
 
-C_pid=K*(1+1/(Ti*s)+(Td*s)/(1+Td*s/N));
-G_pid=minreal(C_pid*Pm);
-
-%sin ponderación y diferencial sobre error
-Cr_pid=C_pid;
-
-%ponderación sobre error
-Cr_pid=K*(b+1/(Ti*s)+(Td*s)/(1+Td*s/N));
-
-%con ponderación y diferencial sobre salida
-
-Cr_pid=K*(b+1/(Ti*s));
-
-%funciones de transferencia:
-F_ry_pid=minreal(Cr_pid*Pm/(1+G_pid));
+sd=(z-1)/(z*Ts);
+Cd=K*(1+1/(Ti*sd)+(Td*sd)/(1+Td*sd/N));
 
 
->>>>>>> Stashed changes
+
+
+Crd=Cd;
+
+
