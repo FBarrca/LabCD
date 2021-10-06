@@ -3,16 +3,14 @@ clear
 
 %% Apartado 1, buscar Ts mínimo por tanteo
 
-Ts=0.05; %buscamos un Ts que haga que Pd sea inversamente estable
-ts=Ts;
+Ts=0.0005; %buscamos un Ts que haga que Pd sea inversamente estable
 s=tf('s');
 z=tf('z', Ts);
 Km=8.2897e-02;
 Tm= 6.0718e-02;
 Tf=0.18;
 P = Km/(Tm*s+1)/(Tf*s+1);
-Pd=c2d(P, Ts, 'zoh')
-pzmap(Pd)
+Pd=c2d(P, Ts, 'zoh');
 
 
 z=zpkdata(Pd, 'v'); %Obtenemos los ceros de Pd, que es lo que nos interesa
@@ -21,8 +19,7 @@ z=abs(z) %Miramos que el módulo de todos los ceros sea menor que la unidad
 %% Apartado 2, buscar respuesta más rápida (menor Ts mayor rapidez, mayor sobrepaso) cuyo sobrepaso no sea mayor al 20 por ciento
 %Como el sobrepaso inicial que hay hacia abajo por tener un cero positivo
 %es mucho menor que el segundo sobrepaso, nos centraremos en el segundo
-Ts=0.3; 
-ts=Ts;
+Ts=9.5; 
 
 z=tf('z', Ts);
 
@@ -39,14 +36,13 @@ C=Fa;
 Cr=C;
 ret=0;
 
-sim('modelo_2_grados.slx');
+sim('modelo_generico.slx');
 
 
 
 %% Apartado 3, buscar respuesta más rápida (menor Ts mayor rapidez, mayor sobrepaso) cuyo sobrepaso no sea mayor al 20 por ciento
 
-Ts=0.1;
-ts=Ts
+Ts=4.5;
 
 z=tf('z', Ts);
 
