@@ -76,10 +76,6 @@ Cr_pid=K*(b+1/(Ti*s)+(Td*s)/(1+Td*s/N));
 
 sd=(z-1)/(z*Ts);
 Cd=K*(1+1/(Ti*sd)+(Td*sd)/(1+Td*sd/N));
-
-
-
-
 Crd=Cd;
 
 
