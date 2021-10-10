@@ -22,7 +22,7 @@ z=zpkdata(Pd, 'v'); %Obtenemos los ceros de Pd, que es lo que nos interesa
 z=abs(z) %Miramos que el módulo de todos los ceros sea menor que la unidad
 
 %% buscamos Ts para velocidad y sobrepaso determinados... 20%
-Ts=0.16; 
+Ts=0.15; 
 ts = Ts;
 z=tf('z', Ts);
 
@@ -44,28 +44,28 @@ load("PruebaDeadbeat2.mat");
 
 
 
-% %% Dead beat de 2 orden...
-% % Calculamos alpha:
-% 
-% Ts=0.1;
-% 
-% z=tf('z', Ts);
-% 
-% Pd=c2d(P, Ts, 'zoh');
-% 
-% alpha=zpkdata(Pd, 'v');
-% 
-% F=(z-alpha)/(1-alpha)/z^2; %control Dead Beat de 2º orden donde el cero es el cero de la planta en tiempo discreto (se conserva)
-% 
-% Cd=minreal(F/(Pd-F*Pd)); %simular en el modelo mixto para ver el sobrepaso, en este caso, el único sobrepaso que hay es el inicial 
-% %que provoca el cero positivo, es en el que nos tenemos que fijar. Con el
-% %Ts mínimo(4.5), el sobrepaso es menor del 20%, es la solución válida más
-% %rápida
-% Crd=Cd;
-% 
-% 
-% Fa=tf(1,1);
-% C=Fa;
-% Cr=C;
-% ret=0;
-% 
+%% Dead beat de 2 orden...
+% Calculamos alpha:
+
+Ts=0.25;
+
+z=tf('z', Ts);
+
+Pd=c2d(P, Ts, 'zoh');
+
+alpha=zpkdata(Pd, 'v');
+
+F=(z-alpha)/(1-alpha)/z^2; %control Dead Beat de 2º orden donde el cero es el cero de la planta en tiempo discreto (se conserva)
+
+Cd=minreal(F/(Pd-F*Pd)); %simular en el modelo mixto para ver el sobrepaso, en este caso, el único sobrepaso que hay es el inicial 
+%que provoca el cero positivo, es en el que nos tenemos que fijar. Con el
+%Ts mínimo(4.5), el sobrepaso es menor del 20%, es la solución válida más
+%rápida
+Crd=Cd;
+
+
+Fa=tf(1,1);
+C=Fa;
+Cr=C;
+ret=0;
+
