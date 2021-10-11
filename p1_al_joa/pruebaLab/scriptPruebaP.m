@@ -45,3 +45,7 @@ Gd_p = minreal(Cd_p*Pd);
 S_p=minreal(1/(1+G_p));
 ws_p=fminsearch(@(w) -abs(freqresp(S_p,w)),1);
 Ms_p=20*log10(abs(freqresp(S_p,ws_p)));
+% Repsuesta temporal a analizar en ltiview
+
+
+
