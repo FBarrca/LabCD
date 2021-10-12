@@ -17,6 +17,7 @@ P = 0.03/(1+0.07*s)/(1+0.2*s);
 delay = exp(-ts*s/2);
 Pm = P*delay;
 Pd = c2d(P,ts);
+P_d =-P;
 
 % establecemos los valores de margen de fase y pulsaicones
 Fm = 50; %grados
@@ -41,7 +42,11 @@ Crd = Crd_p;
 F_p = minreal(Cr_p*Pm/(C_p*Pm+1));
 G_p = minreal(C_p*Pm);
 
-Fd_p = minreal(Cd_p*Pd/(Cd_p*Pd+1));
+F_ru_p=minreal(Cr_p/(1+G_p));
+F_dy_p=minreal(P_d/(1+G_p));
+F_du_p=minreal(Pm*C_p/(1+G_p));
+
+Fd_p = minreal(Crd_p*Pd/(Cd_p*Pd+1));
 Gd_p = minreal(Cd_p*Pd);
 
 % Margenes de estabilidad de P

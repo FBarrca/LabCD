@@ -19,7 +19,8 @@ P = 0.03/(1+0.07*s)/(1+0.2*s);
 delay = exp(-ts*s/2);
 Pm = P*delay;
 Pd = c2d(P,ts);
-
+P_d = -P;
+Pd_d = c2d(P_d,ts);
 
 % valores definidos: diseño del PID
 Fm = 45;        % margen de fase (grados)
@@ -85,12 +86,21 @@ Cr=Cr_pid;
 Cd=Cd_pid;
 Crd=Crd_pid;
 
+% funciones analogicas
 G_pid=minreal(C_pid*Pm);
 F_pid = minreal(Cr_pid*Pm/(1+G_pid));
-        % funciones analogicas
+F_ru_pid=minreal(Cr_pid/(1+G_pid));
+F_dy_pid=minreal(P_d/(1+G_pid));
+F_du_pid=minreal(Pm*C_pid/(1+G_pid));
+
+% funciones digitales
 Gd_pid = minreal(Cd_pid*Pd);
 Fd_pid = minreal(Crd_pid*Pd/(1+Gd_pid));
-        % funciones digitales
+Fd_ru_pid=minreal(Crd_pid/(1+Gd_pid));
+Fd_dy_pid=minreal(Pd_d/(1+Gd_pid));
+Fd_du_pid=minreal(Pd*Cd_pid/(1+Gd_pid));
+
+        
 
 % ANALISIS:
 % zpk(C_pid)
