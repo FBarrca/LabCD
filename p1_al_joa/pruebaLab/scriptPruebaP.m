@@ -6,6 +6,7 @@ ret = 1;
 
 %% CONTROL P:
 % definimos s, ts, z
+tr = 0.005;
 s = tf('s');
 ts = 0.025;
 Ts = ts;
@@ -26,14 +27,18 @@ Kp = 1/Ap;
 
 K = Kp;
 C_p = tf(K,1);
+C = C_p;
 Cr_p = C_p;
+Cr = Cr_p;
 
 Cd_p = c2d(C_p,ts);
+Cd = Cd_p;
 Crd_p = Cd_p;
+Crd = Crd_p;
 
 
 % Funciones de transferencia de los controles:
-F_p = minreal(C_p*Pm/(C_p*Pm+1));
+F_p = minreal(Cr_p*Pm/(C_p*Pm+1));
 G_p = minreal(C_p*Pm);
 
 Fd_p = minreal(Cd_p*Pd/(Cd_p*Pd+1));
@@ -45,7 +50,7 @@ Gd_p = minreal(Cd_p*Pd);
 S_p=minreal(1/(1+G_p));
 ws_p=fminsearch(@(w) -abs(freqresp(S_p,w)),1);
 Ms_p=20*log10(abs(freqresp(S_p,ws_p)));
-% Repsuesta temporal a analizar en ltiview
+% Respuesta temporal a analizar en ltiview
 
 
 

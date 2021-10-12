@@ -33,6 +33,16 @@ F=1/z; %Control Dead Beat de orden 1
 Cd=minreal(F/(Pd-F*Pd)); %simular en el modelo mixto para ver el sobrepaso
 Crd=Cd;
 
+Gd_db = minreal(Cd*Pd);
+Fd_db = minreal(Crd*Pd/(1+Gd_db));
+
+% Margenes de estabilidad de DB
+[Am_db, Fm_db, wu_db, wo_db] = margin(Gd_db);
+% Sensibilidad y Maxima sensibilidad
+S_db = minreal(1/(1+Gd_db));
+ws_db = fminsearch(@(w) -abs(freqresp(S_db, w)),1);
+Ms_db = 20*log10(abs(freqresp(S_db, ws_db)));
+
 
 Fa=tf(1,1);
 C=Fa;
@@ -44,27 +54,27 @@ ret=0;
 
 
 %% Dead beat de 2 orden...
-% Calculamos alpha:
-
-Ts=0.14;
-
-z=tf('z', Ts);
-
-Pd=c2d(P, Ts, 'zoh');
-
-alpha=zpkdata(Pd, 'v');
-
-F=(z-alpha)/(1-alpha)/z^2; %control Dead Beat de 2º orden donde el cero es el cero de la planta en tiempo discreto (se conserva)
-
-Cd=minreal(F/(Pd-F*Pd)); %simular en el modelo mixto para ver el sobrepaso, en este caso, el único sobrepaso que hay es el inicial 
-%que provoca el cero positivo, es en el que nos tenemos que fijar. Con el
-%Ts mínimo(4.5), el sobrepaso es menor del 20%, es la solución válida más
-%rápida
-Crd=Cd;
-
-
-Fa=tf(1,1);
-C=Fa;
-Cr=C;
-ret=0;
-
+% % Calculamos alpha:
+% 
+% Ts=0.14;
+% 
+% z=tf('z', Ts);
+% 
+% Pd=c2d(P, Ts, 'zoh');
+% 
+% alpha=zpkdata(Pd, 'v');
+% 
+% F=(z-alpha)/(1-alpha)/z^2; %control Dead Beat de 2º orden donde el cero es el cero de la planta en tiempo discreto (se conserva)
+% 
+% Cd=minreal(F/(Pd-F*Pd)); %simular en el modelo mixto para ver el sobrepaso, en este caso, el único sobrepaso que hay es el inicial 
+% %que provoca el cero positivo, es en el que nos tenemos que fijar. Con el
+% %Ts mínimo(4.5), el sobrepaso es menor del 20%, es la solución válida más
+% %rápida
+% Crd=Cd;
+% 
+% 
+% Fa=tf(1,1);
+% C=Fa;
+% Cr=C;
+% ret=0;
+% 

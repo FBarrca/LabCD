@@ -99,11 +99,11 @@ Fd_pid = minreal(Crd_pid*Pd/(1+Gd_pid));
 % zpk(Crd_pid,ts)
 
 % Margenes de estabilidad de PID
-[Am_pid,Fm_pid,wu_pid,wo_pid] = margin(G_pid);
+[Am_pid,Fm_pid,wu_pid,wo_pid] = margin(Gd_pid);
 % Sensibilidad y maxima sensibilidad
-S_pid=minreal(1/(1+G_pid));
-ws_pid=fminsearch(@(w) -abs(freqresp(S_pid,w)),1);
-Ms_pid=20*log10(abs(freqresp(S_pid,ws_pid)));
+Sd_pid=minreal(1/(1+Gd_pid));
+ws_pid=fminsearch(@(w) -abs(freqresp(Sd_pid,w)),1);
+Ms_pid=20*log10(abs(freqresp(Sd_pid,ws_pid)));
 % Respuesta temporal a analizar en ltiview
 
 
