@@ -4,7 +4,7 @@ clc
 clear
 
 %% buscamos Ts mínimo por tanteo...
-tr=0.1;
+tr=0.005;
 Ts=4;
 ts=Ts;%buscamos un Ts que haga que Pd sea inversamente estable
 s=tf('s');
@@ -47,7 +47,7 @@ load("PruebaDeadbeat2.mat");
 %% Dead beat de 2 orden...
 % Calculamos alpha:
 
-Ts=0.25;
+Ts=0.105;
 
 z=tf('z', Ts);
 
