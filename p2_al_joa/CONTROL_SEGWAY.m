@@ -76,7 +76,7 @@ X0=[0 0 th0*pi/180]';
 % funcion de transferencia uc => theta
 param(10) = 0;
 [matA, matB, matC, matD] = linmod('segway');
-param(10) = Trmax;
+%param(10) = Trmax;
 Pss = ss(matA, matB, matC(1,:), matD(1,:));
 Pth = minreal(zpk(ss(matA,matB,matC(3,:),matD(3,:))));
 Pv = minreal(zpk(ss(matA,matB,matC(1,:),matD(1,:))));
@@ -94,11 +94,12 @@ matDud=Pssd.d;
                     %% CONTROL PID: %%
 
 % simplificamos Planta de theta
+[z,p,k] = zpkdata(Pth,'v');
 Kth = dcgain(Pth/s);
 Tv = 1/p(1);
 Tw1 = 1/p(2); Tw2 = 1/p(3);
 Tw = sqrt(Tw1*Tw2);
-P = minreal(Kth*s/(1+Tv*s)/(1-Tw^2*s^2))
+P = minreal(Kth*s/(1+Tv*s)/(1-((Tw^2)*s^2)));
 
 % calculamos la planta...
 % buscamos seta = 0.7, wn = 4.5 rad/s, p = -25
@@ -107,18 +108,30 @@ s = tf('s');
 % diseñamos control:
 wn_pid = 4.5;
 seta_pid = 0.7;
-p_pid = -0.25;
+p_pid = -25;
 a3 = 1;
 a2 = (2*seta_pid*wn_pid-p_pid);
-a1 = (-2*seta_pid*wn_pid+wn_pid^2);
+a1 = (-2*seta_pid*wn_pid*p_pid + wn_pid^2);
 a0 = (-p_pid*wn_pid^2);
 den = s^3 + a2*s^2 + a1*s +a0
 % C = K*(1 + 1/Ti*s + Td*s)
 % P = (Kth*s/(1+Tv*s)/(1-Tw^2*s^2))
-% den(1+C*P) = s*(s^3*(Ti*Tv*Tw^2) + s^2*(K*Kth*Td*Ti-Tw^2*Ti) + s*(Ti*K*Kth+Tv*Ti) + (K*Kth+Ti))
-x = fsolve(@(x) [   a2 - (x(3)*Kth*x(1)*x(2)-Tw^2*x(2))/(x(2)*Tv*Tw^2) ;
-                    a1 - (x(2)*x(3)*Kth+Tv*x(2))/(x(2)*Tv*Tw^2);
-                    a0 - (x(3)*Kth+x(2))/(x(2)*Tv*Tw^2)] , [1;1;1]);
+% den(1+C*P) = s*(s^3 + s^2*(1/Tv) + s*((x(2)*Tv + x(3)*Kth*x(2) + x(3)*Kth*x(1))/(-x(2)*(Tw^2)*Tv)) + ((x(2) + x(3)*Kth)/(-x(2)*(Tw^2)*Tv))
+x = fsolve(@(x) [   a2 - (1/Tv) ;
+                    a1 - ((x(2)*Tv + x(3)*Kth*x(2) + x(3)*Kth*x(1))/(-x(2)*(Tw^2)*Tv));
+                    a0 - ((x(2) + x(3)*Kth)/(-x(2)*(Tw^2)*Tv))] , [1;1;1]);
+  Td_pid = x(1);
+  Ti_pid = x(2);
+  K_pid = x(3);
+  
+  Td = Td_pid;
+  Ti = Ti_pid;
+  K = K_pid;
+C_pid = K_pid*(1 + (1/Ti_pid/s) + Td_pid*s);
+[zf,pf,kf] = zpkdata(minreal(1+C_pid*Pth),'v');
+F =minreal(C_pid*P/(1+C_pid*P))
+F2 =minreal(C_pid*Pth/(1+C_pid*Pth))
+
 
 
 
