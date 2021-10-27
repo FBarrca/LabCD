@@ -106,7 +106,7 @@ Bd=Pss_d.b;
 polos_la=eig(matA);
 w_la=max(polos_la);
 
-wn=0.55*w_la;
+wn=1.1*w_la;
 seta=0.7;
 polos_lc=wn*[-seta+sqrt(1-seta^2)*1j, -seta-sqrt(1-seta^2)*1j].';
 polos_ad=-5*wn;
