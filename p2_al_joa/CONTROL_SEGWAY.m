@@ -127,12 +127,44 @@ x = fsolve(@(x) [   a2 - (1/Tv) ;
   Td = Td_pid;
   Ti = Ti_pid;
   K = K_pid;
+  
 C_pid = K_pid*(1 + (1/Ti_pid/s) + Td_pid*s);
 [zf,pf,kf] = zpkdata(minreal(1+C_pid*Pth),'v');
-F =minreal(C_pid*P/(1+C_pid*P))
-F2 =minreal(C_pid*Pth/(1+C_pid*Pth))
+% F =minreal(C_pid*P/(1+C_pid*P))
+% F2 =minreal(C_pid*Pth/(1+C_pid*Pth))
 
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% OBJETIVO:MANTENER EL PUNTO DE EQUILIBRIO %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% en el modelo incremental todas las variable svalen 0 en el
+% punto de equilibrio
+% Estrategia de control: U[k]=-Kcd*X[k]
+% Se aplica sobre el modelo incremental en tiempo discreto
+% X[k+1] = Ad*X[k] + Bd*U[k] = Ad*X[k] - Bd*Kcd*X[k] = (Ad-Bd*Kcd)*X[k]
+% La matriz de estado en el lazo cerrado es Ad-Bd*Kcd
+% Se fijan las dinamicas en lazo cerrado para que el sistema retorne al 
+% punto de equilibrio de forma rapida y bien amortiguada
+
+% asignacion de polos en lazo cerrado
+% polos dle alzo abierto y en tiempo continuo
+polos_la = eig(matA);
+w_la = max(polos_la); %pulsacion del polo inestable
+% polos en lazo cerrado: configuración de Butterworth
+wn = 0.5*;
+seta = 0.5;
+polos_lc = wn*[-seta+sqrt(1-seta^2)*1j -seta-sqrt(1-seta^2)*1j -6].';
+% polos en tiempo discreto
+polosd_lc = exp(polos_lc*ts);
+% calculo de la matriz K del control
+Kcd = place(matAd, matBd, polosd_lc);
+
+%% analisis de la robustez
+% Paux=ss(matAd,matBd,eye(3),zeros(3,1),ts);
+% Ubase = 8.5;
+% Ybase = [0.3 400*pi/180 15*pi/180];
+% analiza_robustez_SFR(Paux,Kcd,Ubase,Ybase)
 
 
 
