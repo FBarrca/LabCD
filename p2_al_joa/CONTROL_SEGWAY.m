@@ -212,9 +212,9 @@ mando_min = -8;
 %%%%  PARAMETROS SEGUIMIENTO PARED %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Ganancia estática giro (rad/s/V)
-Km_w=1;
+Km_w=5.4411e-01;
 % Constante de tiempo giro (s)
-Tm_w=5e-02;
+Tm_w=6.6258e-02;
 % Abcisa punto A (m)
 xA=0;
 % Ordenada punto A (m)
@@ -230,5 +230,24 @@ matAp = [-1/Tm_w 0 0 ; 1 0 0 ; 1000*xA 1000*va0 0];
 matBp = [ Km_w/Tm_w 0 0; 0 -1 0; 0 0 0];
 matCp = eye(3);
 matDp = zeros(3,3);
+
+polos_lc_pared = [-1 -2 -6].';
+% polos en tiempo discreto
+polosd_lc_pared = exp(polos_lc_pared*ts);
+
+% calculo de los valores de la planta discretizada del giro
+
+Pss_pared = ss(matAp, matBp, matCp(1,:), matDp(1,:));
+
+Pssd_pared = c2d(Pss_pared,ts,'zoh');
+
+matAd_pared=Pssd_pared.a;
+matBd_pared=Pssd_pared.b;
+matCd_pared=Pssd_pared.c;
+matDd_pared=Pssd_pared.d;
+
+% seguimiento de la pared
+
+Kcd_pared = place(matAd_pared, matBd_pared(:,1), polosd_lc_pared);
 
 return
