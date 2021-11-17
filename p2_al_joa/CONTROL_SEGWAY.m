@@ -88,7 +88,7 @@ Pssd = c2d(Pss,ts,'zoh');
 matAd=Pssd.a;
 matBd=Pssd.b;
 matCd=Pssd.c;
-matDud=Pssd.d;
+matDd=Pssd.d;
 
 
                     %% CONTROL PID: %%
@@ -127,12 +127,84 @@ x = fsolve(@(x) [   a2 - (1/Tv) ;
   Td = Td_pid;
   Ti = Ti_pid;
   K = K_pid;
+  
 C_pid = K_pid*(1 + (1/Ti_pid/s) + Td_pid*s);
 [zf,pf,kf] = zpkdata(minreal(1+C_pid*Pth),'v');
-F =minreal(C_pid*P/(1+C_pid*P))
-F2 =minreal(C_pid*Pth/(1+C_pid*Pth))
+% F =minreal(C_pid*P/(1+C_pid*P))
+% F2 =minreal(C_pid*Pth/(1+C_pid*Pth))
+
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% OBJETIVO:MANTENER EL PUNTO DE EQUILIBRIO %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% en el modelo incremental todas las variable svalen 0 en el
+% punto de equilibrio
+% Estrategia de control: U[k]=-Kcd*X[k]
+% Se aplica sobre el modelo incremental en tiempo discreto
+% X[k+1] = Ad*X[k] + Bd*U[k] = Ad*X[k] - Bd*Kcd*X[k] = (Ad-Bd*Kcd)*X[k]
+% La matriz de estado en el lazo cerrado es Ad-Bd*Kcd
+% Se fijan las dinamicas en lazo cerrado para que el sistema retorne al 
+% punto de equilibrio de forma rapida y bien amortiguada
+
+% asignacion de polos en lazo cerrado
+% polos dle alzo abierto y en tiempo continuo
+polos_la = eig(matA);
+w_la = max(polos_la); %pulsacion del polo inestable
+% polos en lazo cerrado: configuración de Butterworth
+wn = 0.5*w_la;
+seta = 0.5;
+polos_lc = wn*[-seta+sqrt(1-seta^2)*1j -seta-sqrt(1-seta^2)*1j -6].';
+% polos en tiempo discreto
+polosd_lc = exp(polos_lc*ts);
+% calculo de la matriz K del control
+Kcd = place(matAd, matBd, polosd_lc);
 
 
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% OBJETIVO:MANTENER EL PUNTO DE EQUILIBRIO %
+% Y LA VELOCIDAD DE AVANCE                 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% en el modelo incremental todas las variable svalen 0 en el
+% punto de equilibrio
+% Estrategia de control: U[k]=-Kcd*X[k]
+% Se aplica sobre el modelo incremental en tiempo discreto
+% X[k+1] = Ad*X[k] + Bd*U[k] = Ad*X[k] - Bd*Kcd*X[k] = (Ad-Bd*Kcd)*X[k]
+% La matriz de estado en el lazo cerrado es Ad-Bd*Kcd
+% Se fijan las dinamicas en lazo cerrado para que el sistema retorne al 
+% punto de equilibrio de forma rapida y bien amortiguada
+
+% Matrices ampliadas
+matAad = [matAd zeros(3,1); -ts*matCd eye(1)];
+matBad = [matBd; -ts*matDd];
+
+% polos de la planta
+[wnP,setaP] = damp(eig(matA));
+
+% polos en lazo cerrado: configuración de Butterworth
+wn = 0.12*wnP(1);
+seta = 0.6;
+polos_lc = [wn*(-seta+sqrt(1-seta^2)*1j) wn*(-seta-sqrt(1-seta^2)*1j) -6*wn -wnP(3)].';
+% polos en tiempo discreto
+polosd_lc = exp(polos_lc*ts);
+% calculo de la matriz K del control
+K = place(matAad, matBad, polosd_lc);
+Kcd = K(:,1:3);
+Kid = K(:,4);
+
+mando_max = 8;
+mando_min = -8;
+
+
+
+
+%% analisis de la robustez
+% Paux=ss(matAd,matBd,eye(3),zeros(3,1),ts);
+% Ubase = 8.5;
+% Ybase = [0.3 400*pi/180 15*pi/180];
+% analiza_robustez_SFR(Paux,Kcd,Ubase,Ybase)
 
 
 
