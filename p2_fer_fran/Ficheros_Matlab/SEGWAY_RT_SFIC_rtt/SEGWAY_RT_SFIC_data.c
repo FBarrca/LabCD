@@ -10,7 +10,7 @@
  * Model version                  : 1.450
  * Simulink Coder version         : 8.8 (R2015a) 09-Feb-2015
  * TLC version                    : 8.8 (Jan 20 2015)
- * C/C++ source code generated on : Wed Nov 10 10:00:19 2021
+ * C/C++ source code generated on : Wed Nov 17 08:53:16 2021
  *
  * Target selection: realtime.tlc
  * Embedded hardware selection: ARM Compatible->ARM 7
@@ -79,7 +79,7 @@ Parameters_SEGWAY_RT_SFIC SEGWAY_RT_SFIC_P = {
   0.0,                                 /* Expression: 0
                                         * Referenced by: '<Root>/Pulse Generator'
                                         */
-  0.0,                                 /* Expression: 0
+  0.1,                                 /* Expression: 0.1
                                         * Referenced by: '<Root>/deg2rad3'
                                         */
   -1.0F,                               /* Computed Parameter: Gain8_Gain
