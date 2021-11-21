@@ -282,8 +282,8 @@ X0=[vo wo tho*pi/180]';
 %                        Ampliacion de matrices de estado
 %__________________________________________________________________________
 
-matAad = [matAd zeros(3, 1) ; -ts*matCd eye(1)];
-matBad = [matBd ; -matDd*ts];
+matAad = [Ad zeros(3, 1) ; -Ts*Cd eye(1)];
+matBad = [Bd ; -Dd*Ts];
 wn=1.1*w_la*0.7;
 seta=0.7;
 polos_lc=wn*[-seta+sqrt(1-seta^2)*1j, -seta-sqrt(1-seta^2)*1j].';
@@ -314,9 +314,9 @@ X0=[vo wo tho*pi/180]';
 %%Simula___________________________--
 
 %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%  PARAMETROS SEGUIMIENTO PARED %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%  PARAMETROS SEGUIMIENTO PARED %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Ganancia estática giro (rad/s/V)
 Km_w=1;
 % Constante de tiempo giro (s)
@@ -331,40 +331,10 @@ param_pared=[Km_w Tm_w xA yA];
 d0 = 100;
 % Velocidad de avance en el punto de operación (m/s)
 va0 = 0.15;
-
-%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%  CONTROL DE SEGUIMIENTO DE PARED %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%__________________________________________________________________________
-%                           Modelo Lienalizado
-%__________________________________________________________________________
+% Modelo linealizado seguimiento pared
 matAp = [-1/Tm_w 0 0 ; 1 0 0 ; 1000*xA 1000*va0 0];
 matBp = [ Km_w/Tm_w 0 0; 0 -1 0; 0 0 0];
 matCp = eye(3);
 matDp = zeros(3,3);
-
-
-%__________________________________________________________________________
-%                           Discretizacion del sistema
-%__________________________________________________________________________
-Pssp=ss(matAp, matBp, matCp, matDp);
-Pss_dp=c2d(Pssp, ts);
-Adp=Pss_dp.a;
-Bdp=Pss_dp.b;
-Cdp=Pss_dp.c;
-Ddp=Pss_dp.d;
-
-polos_lap=eig(matAp);
-w_lap=max(polos_lap);
-
-%wnp=1.1*w_lap;
-wnp=1;
-setap=0.7;
-polos_lcp=wnp*[-setap+sqrt(1-setap^2)*1j, -setap-sqrt(1-setap^2)*1j].';
-polos_adp=-5*wnp;
-polosd_lcp=exp([polos_lcp; polos_adp]*ts);
-Kcd_pared=place(Adp, Bdp, polosd_lcp);
 
 return
