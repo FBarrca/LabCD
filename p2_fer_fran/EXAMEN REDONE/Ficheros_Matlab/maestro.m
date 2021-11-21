@@ -144,6 +144,7 @@ Paux=ss (matAd , matBd , matCd , matDd , ts);
 
 Ubase=8.5; 
 Ybase =[0.3 400*pi/180 15*pi/180]; 
+Kcd=place (matAd , matBd , polosd_lc) ; 
 analiza_robustez_SFR(Paux, Kcd , Ubase , Ybase)
 
 

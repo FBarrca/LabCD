@@ -73,12 +73,19 @@ sound_dur =	500;
 % del vehículo, con velocidad de avance nula, y linealizar el modelo en 
 % dicho punto de operación
 
+%__________________________________________________________________________
+%                   PUNTO DE OPERCACION SIMULACION
+%__________________________________________________________________________
+
 %DEfinimos el punto de equilibrio/operacion _0
 vo =0; %velocidad de avance (m/s)
 wo= 0; %velocidad angular de cabeceo (rad/s)
 tho = 0; %ángulo de cabeceo (grados)
 X0=[vo wo tho*pi/180]';
 U0=0;
+%__________________________________________________________________________
+%                   FUNCION DE TRANSFERENCIA DEL MODELO LINEALIZADO
+%__________________________________________________________________________
 
 % A la hora de linealizar el modelo, es necesario anular el
 % par de fricción máximo (parámetro del modelo).
@@ -95,7 +102,17 @@ Pss = ss(matA,matB,matC,matD);
 polos=eig(matA);
 polos(3),
 %Vemos que hay un autovalor positivo, por tanto el sistema es inestable.
+%__________________________________________________________________________
+%                               DISCRETIZACION DEL MODELO
+%__________________________________________________________________________
 
+ts = 5e-3;
+Pss_d=c2d(Pss, ts, 'zoh');
+matAd=Pss_d.a;
+matBd=Pss_d.b;
+matCd=Pss_d.c;
+matDd=Pss_d.d;
+matDud=Pss_d.d;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%   DISEÑO DE REGULADOR PID  %%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -183,6 +200,27 @@ C_pid = K_pid*(1 + (1/Ti_pid/s) + Td_pid*s);
 % seta=0.7;
 % polos_lc=wn*[-seta+sqrt(1-seta^2)*1j, -seta-sqrt(1-seta^2)*1j].';
 % polos_ad=-5.55*wn;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%   DISEÑO DE REGULADOR PI  %%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+polos_la=eig(matA);
+w_la=max(polos_la);% pulsación del polo inestable 
+% Polos en lazo cerrado: configuración de Butterworth 
+wn=0.461*w_la;
+seta=0.7;
+polos_ad=[-5.55*wn,-5.551*wn]; %polo adicional
+polos_lc=wn*[-seta+sqrt(1-seta^2)*1j, -seta-sqrt(1-seta^2)*1j, polos_ad].';
+% Polos en tiempo discreto 
+polosd_lc=exp(polos_lc*ts);% z=e^(s*ts)
+
+%matAad = [matAd zeros(3, 1) ; -ts*matCd eye(1)];
+matBad = [matBd ; -matDd*ts];
+% Cálculo de la matriz K del control 
+Kcd=place (matAad , matBad , polosd_lc(1:2,:)) ; 
+Kcd=Ka(1, 1:3);
+Kid=Ka(1,4);
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
