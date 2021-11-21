@@ -27,7 +27,7 @@ Kt=Ke;
 % Momento de inercia del motor (kg.m^2)
 Im=3.75e-3;
 % Par máximo de friccion (Nm)
-Trmax=0.0;
+Trmax=0.05;
 % Friccion viscosa (N.m.s/rad)
 Dm=0.0142;
 %%%%%%%%%%
@@ -100,6 +100,44 @@ a3=-1;
 zpk(P)
 %si pintamos los polos de p, todos son reales y uno es positivo, por lo que no es estable 
 
+%Control PID:
+
+p=-25;
+seta=0.7;
+wn=4.5;
+
+a2=-p+2*seta*wn;
+a1=wn^2-2*seta*wn*p;
+a0=-p*wn^2;
+
+
+
+
+%hallar los parámetros del control
+%den=-Tv*Tw^2;
+
+%resolver estas ecuaciones para Ti, Td, K. Los demás parámetros son
+%conocidos
+%a2=(-Tw+Ti*Td*k*kth)/den/Ti;
+%a1=(Tv+k*kth*Ti)/den/Ti;
+%a0=(Ti+k*kth)/den/Ti;
+
+%x=fsolve(@(x) [a2-(-Tw+x(2)*x(3)*x(1)*kth)/den/x(3), a1-(Tv+x(1)*kth*x(2))/den/x(3), a0-(x(3)+x(2)*kth)/den/x(3)], [0.1,0.05,0.03]);
+x=fsolve(@(x) [a2-((1-x(1)*kth*x(2)/Tw^2)/Tv), a1+(1+x(1)*kth/Tv)/Tw^2, a0+(1+x(1)*kth/x(3))/Tw^2/Tv], [0.1,0.05,0.03]);
+
+K=x(1);
+Td=x(2);
+Ti=x(3);
+
+%Para configurar la simulación:
+
+th0=5;
+X0 = [0, 0, th0*pi/180]';
+
+%%Regulador: 
+%Para que funcione bien hay que comentar el control integral para no
+%sobreescribir Kcd
+
 Pss_d=c2d(Pss, ts);
 Ad=Pss_d.a;
 Bd=Pss_d.b;
@@ -116,9 +154,13 @@ polos_ad=-5*wn;
 polosd_lc=exp([polos_lc; polos_ad]*ts);
 Kcd=place(Ad, Bd, polosd_lc);
 
+param(10) = 0.05;  %para meterle par de rozamiento a la simulación
+
+%%Control Integral
+
 matAad = [Ad zeros(3, 1) ; -Ts*Cd eye(1)];
 matBad = [Bd ; -Dd*Ts];
-wn=1.1*w_la*0.19;
+wn=1.1*w_la*0.7;
 seta=0.7;
 polos_lc=wn*[-seta+sqrt(1-seta^2)*1j, -seta-sqrt(1-seta^2)*1j].';
 polos_ad=[-5*wn ; -5.01*wn];
@@ -150,5 +192,33 @@ matAp = [-1/Tm_w 0 0 ; 1 0 0 ; 1000*xA 1000*va0 0];
 matBp = [ Km_w/Tm_w 0 0; 0 -1 0; 0 0 0];
 matCp = eye(3);
 matDp = zeros(3,3);
+
+
+%%Control seguimiento de pared:
+
+
+
+
+Pssp=ss(matAp, matBp, matCp, matDp);
+
+
+
+Pss_dp=c2d(Pssp, ts);
+Adp=Pss_dp.a;
+Bdp=Pss_dp.b;
+Cdp=Pss_dp.c;
+Ddp=Pss_dp.d;
+
+polos_lap=eig(matAp);
+w_lap=max(polos_lap);
+
+%wnp=1.1*w_lap;
+wnp=1;
+setap=0.7;
+polos_lcp=wnp*[-setap+sqrt(1-setap^2)*1j, -setap-sqrt(1-setap^2)*1j].';
+polos_adp=-5*wnp;
+polosd_lcp=exp([polos_lcp; polos_adp]*ts);
+Kcd_pared=place(Adp, Bdp, polosd_lcp);
+
 
 return
