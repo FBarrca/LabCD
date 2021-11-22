@@ -123,18 +123,24 @@ a0=-p*wn^2;
 %a0=(Ti+k*kth)/den/Ti;
 
 %x=fsolve(@(x) [a2-(-Tw+x(2)*x(3)*x(1)*kth)/den/x(3), a1-(Tv+x(1)*kth*x(2))/den/x(3), a0-(x(3)+x(2)*kth)/den/x(3)], [0.1,0.05,0.03]);
-x=fsolve(@(x) [a2-((1-x(1)*kth*x(2)/Tw^2)/Tv), a1+(1+x(1)*kth/Tv)/Tw^2, a0+(1+x(1)*kth/x(3))/Tw^2/Tv], [0.1,0.05,0.03]);
+x=fsolve(@(x) [a2-((1-x(1)*kth*x(2)/Tw^2)/Tv), ...
+               a1+(1+x(1)*kth/Tv)/Tw^2, ...
+               a0+(1+x(1)*kth/x(3))/Tw^2/Tv], ...
+               [0.1,0.05,0.03]);
 
 K=x(1);
 Td=x(2);
 Ti=x(3);
 
-%Para configurar la simulación:
+%% Para configurar la simulación (también para regulador e integral):
 
 th0=5;
 X0 = [0, 0, th0*pi/180]';
 
-%%Regulador: 
+
+%% %%Regulador: 
+
+
 %Para que funcione bien hay que comentar el control integral para no
 %sobreescribir Kcd
 
@@ -143,24 +149,29 @@ Ad=Pss_d.a;
 Bd=Pss_d.b;
 Cd=Pss_d.c(1,:);
 Dd=Pss_d.d(1,:);
-
+% 
 polos_la=eig(matA);
 w_la=max(polos_la);
-
-wn=1.1*w_la;
-seta=0.7;
-polos_lc=wn*[-seta+sqrt(1-seta^2)*1j, -seta-sqrt(1-seta^2)*1j].';
-polos_ad=-5*wn;
-polosd_lc=exp([polos_lc; polos_ad]*ts);
-Kcd=place(Ad, Bd, polosd_lc);
+% 
+% wn=1.1*w_la;
+% seta=0.7;
+% polos_lc=wn*[-seta+sqrt(1-seta^2)*1j, -seta-sqrt(1-seta^2)*1j].';
+% polos_ad=-5*wn;
+% polosd_lc=exp([polos_lc; polos_ad]*ts);
+% Kcd=place(Ad, Bd, polosd_lc);
 
 param(10) = 0.05;  %para meterle par de rozamiento a la simulación
 
-%%Control Integral
+%% Control Integral
+Pss_d=c2d(Pss, ts);
+Ad=Pss_d.a;
+Bd=Pss_d.b;
+Cd=Pss_d.c(1,:);
+Dd=Pss_d.d(1,:);
 
 matAad = [Ad zeros(3, 1) ; -Ts*Cd eye(1)];
 matBad = [Bd ; -Dd*Ts];
-wn=1.1*w_la*0.7;
+wn=1.1*w_la*0.2;
 seta=0.7;
 polos_lc=wn*[-seta+sqrt(1-seta^2)*1j, -seta-sqrt(1-seta^2)*1j].';
 polos_ad=[-5*wn ; -5.01*wn];
@@ -170,13 +181,18 @@ polosd_lc=exp([polos_lc; polos_ad]*ts);
 Ka=place(matAad, matBad, polosd_lc);
 Kcd=Ka(1, 1:3);
 Kid=Ka(1,4);
+
+param(10) = 0.05;  %para meterle par de rozamiento a la simulación
+
+%% 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%  PARAMETROS SEGUIMIENTO PARED %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Ganancia estática giro (rad/s/V)
-Km_w=1;
+Km_w=5.4411e-01;
 % Constante de tiempo giro (s)
-Tm_w=5e-02;
+Tm_w=6.6258e-02;
 % Abcisa punto A (m)
 xA=0;
 % Ordenada punto A (m)
@@ -218,7 +234,7 @@ setap=0.7;
 polos_lcp=wnp*[-setap+sqrt(1-setap^2)*1j, -setap-sqrt(1-setap^2)*1j].';
 polos_adp=-5*wnp;
 polosd_lcp=exp([polos_lcp; polos_adp]*ts);
-Kcd_pared=place(Adp, Bdp, polosd_lcp);
+Kcd_pared=place(Adp, Bdp(:,1), polosd_lcp);
 
 
 return
