@@ -72,9 +72,10 @@ X0=[0 0 th0*pi/180]';
 %________________________________________________________________
 %               FUNCION DE TRANSFERENCIA DEL MODELO LINEALIZADO
 %________________________________________________________________
-% lINELAIZACION EN THETA = 0;
+% lINEALIZACION EN THETA = 0;
 % funcion de transferencia uc => theta
 param(10) = 0;
+% assuming that the value of the viscosity is 0
 [matA, matB, matC, matD] = linmod('segway');
 %param(10) = Trmax;
 Pss = ss(matA, matB, matC(1,:), matD(1,:));
@@ -91,7 +92,10 @@ matCd=Pssd.c;
 matDd=Pssd.d;
 
 
-                    %% CONTROL PID: %%
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%      OBJETIVO: EQUILIBRIO CON PID        %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % simplificamos Planta de theta
 [z,p,k] = zpkdata(Pth,'v');
@@ -120,13 +124,13 @@ den = s^3 + a2*s^2 + a1*s +a0
 x = fsolve(@(x) [   a2 - (1/Tv) ;
                     a1 - ((x(2)*Tv + x(3)*Kth*x(2) + x(3)*Kth*x(1))/(-x(2)*(Tw^2)*Tv));
                     a0 - ((x(2) + x(3)*Kth)/(-x(2)*(Tw^2)*Tv))] , [1;1;1]);
-  Td_pid = x(1);
-  Ti_pid = x(2);
-  K_pid = x(3);
+Td_pid = x(1);
+Ti_pid = x(2);
+K_pid = x(3);
   
-  Td = Td_pid;
-  Ti = Ti_pid;
-  K = K_pid;
+Td = Td_pid;
+Ti = Ti_pid;
+K = K_pid;
   
 C_pid = K_pid*(1 + (1/Ti_pid/s) + Td_pid*s);
 [zf,pf,kf] = zpkdata(minreal(1+C_pid*Pth),'v');
@@ -138,7 +142,7 @@ C_pid = K_pid*(1 + (1/Ti_pid/s) + Td_pid*s);
 % OBJETIVO:MANTENER EL PUNTO DE EQUILIBRIO %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% en el modelo incremental todas las variable svalen 0 en el
+% en el modelo incremental todas las variable valen 0 en el
 % punto de equilibrio
 % Estrategia de control: U[k]=-Kcd*X[k]
 % Se aplica sobre el modelo incremental en tiempo discreto
