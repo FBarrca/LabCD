@@ -74,7 +74,7 @@ param(10)=0;
 uo=0;
 xo=zeros(3,1);
 
-[matA, matB, matC, matD]=linmod('segway_2015', xo, uo);
+[matA, matB, matC, matD]=linmod('segway', xo, uo);
 
 
 Pss=ss(matA, matB, matC, matD);
@@ -117,3 +117,5 @@ X0 = [0, 0, th0*pi/180]';
 
 
 param(10)=0; %por si acaso hay que poner par de rozamiento máximo
+
+sim('SEGWAY_SIM_SFR.slx');
