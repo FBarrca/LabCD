@@ -255,3 +255,22 @@ matDd_pared=Pssd_pared.d;
 Kcd_pared = place(matAd_pared, matBd_pared(:,1), polosd_lc_pared);
 
 return
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
