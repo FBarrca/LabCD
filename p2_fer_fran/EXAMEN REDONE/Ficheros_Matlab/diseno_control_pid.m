@@ -87,7 +87,13 @@ Pth=Pzpk(3);
 
 %%Parametros planta
 
-
+% K1=0.005;
+% T1=0.05;
+% K2=0.1;
+% T2=0.104;
+% Kth=K1*K2;
+% Tv=T1;
+% Tw=T2;
 kth=0.0074649;
 Tv=0.05708;
 Tw=sqrt(0.1114*0.1026);
@@ -124,3 +130,23 @@ X0 = [0, 0, th0*pi/180]';
 param(10)=0; %por si acaso hay que poner par de rozamiento máximo
 
 sim('SEGWAY_SIM_PID.slx');
+
+
+
+
+
+
+% b=1;
+% 
+% Cd=minreal(K*(1+1/(Ti*s)+(Td*s)/(1+Td*s/N)));
+% 
+% 
+% %sin ponderación y diferencial sobre error
+% Crd=Cd;
+% 
+% %ponderación sobre error
+% Crd=minreal(K*(b+1/(Ti*s)+(Td*s)/(1+Td*s/N)));
+% 
+% %con ponderación y diferencial sobre salida
+% 
+% Crd=minreal(K*(b+1/(Ti*s)));

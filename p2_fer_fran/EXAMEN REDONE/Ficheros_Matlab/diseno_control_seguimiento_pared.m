@@ -20,7 +20,7 @@ yA=-0.09;
 % Vector de parametros
 param_pared=[Km_w Tm_w xA yA];
 % Distancia pared en el punto de operación (mm)
-d0 = 100;
+d0 = 5;
 % Velocidad de avance en el punto de operación (m/s)
 va0 = 0.15;
 % Modelo linealizado seguimiento pared
@@ -47,7 +47,7 @@ w_lap=max(polos_lap);
 
 %%Establecimiento de polos y obtención de Kcd
 
-wnp=1;
+wnp=5;
 setap=0.7;
 
 polos_lcp=wnp*[-setap+sqrt(1-setap^2)*1j, -setap-sqrt(1-setap^2)*1j].';
@@ -58,4 +58,6 @@ polosd_lcp=exp([polos_lcp; polos_adp]*ts);
 Kcd_pared=place(Adp, Bdp(:,1), polosd_lcp);
 
 
-return
+
+
+sim('PARED_SIM_SFR.slx');

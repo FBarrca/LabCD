@@ -102,6 +102,12 @@ w_la=max(polos_la);
 wn=1.1*w_la; %parámetros par polos complejos conjugados
 seta=0.7;
 
+% TEORIA:
+% Butterworth tercer orden -> seta = 0.5 (dos polos complejos conjugados) y
+% uno real p=-wn
+% Butterworth segundo orden -> seta = 0.7
+% Amortiguamiento critico -> seta = 1
+
 polos_lc=wn*[-seta+sqrt(1-seta^2)*1j, -seta-sqrt(1-seta^2)*1j].';
 
 polos_ad=-5*wn; %polo extra (lo alejamos)

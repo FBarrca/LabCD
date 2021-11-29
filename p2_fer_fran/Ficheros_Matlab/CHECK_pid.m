@@ -30,4 +30,7 @@ C=K*(1+1/Ti/s+Td*s);
 
 F=minreal(C*P/(1+C*P));
 
-[num den] = tfdata(F);
+[num, den] = tfdata(F);
+
+
+
